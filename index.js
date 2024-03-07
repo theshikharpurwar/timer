@@ -5,7 +5,7 @@ let timer;
 let isRunning = false;
 
 function startTimer() {
-    if(!(isRunning)){
+    if (!isRunning) {
         isRunning = true;
         timer = setInterval(updateTimer, 1000);
     }
@@ -16,40 +16,49 @@ function stopTimer() {
     isRunning = false;
 }
 
-function resetTimer(){
+function resetTimer() {
     stopTimer();
     seconds = 0;
     minutes = 0;
     hours = 0;
     dispalyTime();
+    updateProgressBar(0);
 }
 
 function updateTimer() {
     seconds++;
-    if(seconds ===  60){
+    if (seconds === 60) {
         seconds = 0;
         minutes++;
-    }
-    else if(minutes === 60) {
+    } else if (minutes === 60) {
         minutes = 0;
         hours++;
     }
     dispalyTime();
+    updateProgressBar(getProgress());
 }
 
 function dispalyTime() {
     document.querySelector('.js-timer').innerText = formatTime(hours) + ':' + formatTime(minutes) + ':' + formatTime(seconds);
 }
 
-function formatTime(time){
-    if(time < 10){
+function formatTime(time) {
+    if (time < 10) {
         return '0' + time;
-    }
-    else{
+    } else {
         return '' + time;
     }
 }
 
-document.querySelector('.js-start-timer').addEventListener('click',startTimer);
-document.querySelector('.js-stop-timer').addEventListener('click',stopTimer);
-document.querySelector('.js-reset-timer').addEventListener('click',resetTimer);
+function updateProgressBar(progress) {
+    const progressBar = document.querySelector('.progress');
+    progressBar.style.width = progress + '%';
+}
+
+function getProgress() {
+    return (seconds / 60) * 100; 
+}
+
+document.querySelector('.js-start-timer').addEventListener('click', startTimer);
+document.querySelector('.js-stop-timer').addEventListener('click', stopTimer);
+document.querySelector('.js-reset-timer').addEventListener('click', resetTimer);
