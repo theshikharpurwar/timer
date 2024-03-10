@@ -1,7 +1,25 @@
 const stopWatchApp = document.querySelector('.js-Stop-Watch');
-stopWatchApp.addEventListener('click', () => {
+stopWatchApp.addEventListener('click', initializeStopwatch);
+
+const timerApp = document.querySelector('.js-timer');
+timerApp.addEventListener('click', initializeCountdownTimer);
+
+let stopwatchHours = 0;
+let stopwatchMinutes = 0;
+let stopwatchSeconds = 0;
+let stopwatchTimer;
+let isStopwatchRunning = false;
+
+let countdownHours = 0;
+let countdownMinutes = 0;
+let countdownSeconds = 0;
+let countdownTimer;
+let isCountdownRunning = false;
+let isCountdownPaused = false;
+
+function initializeStopwatch() {
     const container = document.querySelector('.container');
-    container.innerHTML = `<h1 class="header">Stop-Watch</h1>
+    container.innerHTML = `<h1 class="header">Stopwatch</h1>
         <h2 class="js-timer displayed-time">00:00:00</h2>
         <div class="controls">
             <button class="control js-start-timer">Start</button>
@@ -13,106 +31,122 @@ stopWatchApp.addEventListener('click', () => {
         </div>
         <div class="message"></div>`;
 
-    document.querySelector('.js-start-timer').addEventListener('click', startTimer);
-    document.querySelector('.js-stop-timer').addEventListener('click', stopTimer);
-    document.querySelector('.js-reset-timer').addEventListener('click', resetTimer);
-});
+    document.querySelector('.js-start-timer').addEventListener('click', startStopwatch);
+    document.querySelector('.js-stop-timer').addEventListener('click', stopStopwatch);
+    document.querySelector('.js-reset-timer').addEventListener('click', resetStopwatch);
+}
 
-const timerApp = document.querySelector('.js-timer');
-timerApp.addEventListener('click', () => {
+function initializeCountdownTimer() {
     const container = document.querySelector('.container');
     container.innerHTML = `
-        <h1>Countdown Timer</h1>
-        <input type="number" class="durationInput" placeholder="Enter duration in seconds">
-        <button class="js-start-timer-app">Start</button>
-        <h2 class="timerDisplay">00:00:00</h2>
+        <h1 class="header">Countdown Timer</h1>
+        <div class="item-center">
+            <input type="number" class="durationInput input-field" placeholder="Enter duration in seconds">
+        </div>
+        <div class="item-center">
+            <button class="js-start-timer-app control">Start</button>
+            <button class="js-pause-timer control">Pause</button>
+            <button class="js-resume-timer control">Resume</button>
+        </div>
+        <h2 class="timerDisplay displayed-time">00:00:00</h2>
     `;
-    document.querySelector('.js-start-timer-app').addEventListener('click', startTimerApp);
-});
+    document.querySelector('.js-start-timer-app').addEventListener('click', startCountdownTimer);
+    document.querySelector('.js-pause-timer').addEventListener('click', pauseCountdownTimer);
+    document.querySelector('.js-resume-timer').addEventListener('click', resumeCountdownTimer);
+}
 
-let hours = 0;
-let minutes = 0;
-let seconds = 0;
-let timer;
-let isRunning = false;
 
-function startTimer() {
-    if (!isRunning) {
-        isRunning = true;
-        timer = setInterval(updateTimer, 1000);
+function startStopwatch() {
+    if (!isStopwatchRunning) {
+        isStopwatchRunning = true;
+        stopwatchTimer = setInterval(updateStopwatch, 1000);
     }
 }
 
-function stopTimer() {
-    clearInterval(timer);
-    isRunning = false;
+function stopStopwatch() {
+    clearInterval(stopwatchTimer);
+    isStopwatchRunning = false;
 }
 
-function resetTimer() {
-    stopTimer();
-    seconds = 0;
-    minutes = 0;
-    hours = 0;
-    dispalyTime();
-    updateProgressBar(0);
+function resetStopwatch() {
+    stopStopwatch();
+    stopwatchSeconds = 0;
+    stopwatchMinutes = 0;
+    stopwatchHours = 0;
+    displayTime('.js-timer', stopwatchHours, stopwatchMinutes, stopwatchSeconds);
+    updateProgressBar('.progress', 0);
 }
 
-function updateTimer() {
-    seconds++;
-    if (seconds === 60) {
-        seconds = 0;
-        minutes++;
-    } else if (minutes === 60) {
-        minutes = 0;
-        hours++;
+function updateStopwatch() {
+    stopwatchSeconds++;
+    if (stopwatchSeconds === 60) {
+        stopwatchSeconds = 0;
+        stopwatchMinutes++;
     }
-    dispalyTime();
-    updateProgressBar(getProgress());
-}
-
-function dispalyTime() {
-    document.querySelector('.js-timer').innerText = formatTime(hours) + ':' + formatTime(minutes) + ':' + formatTime(seconds);
-}
-
-function formatTime(time) {
-    if (time < 10) {
-        return '0' + time;
-    } else {
-        return '' + time;
+    if (stopwatchMinutes === 60) {
+        stopwatchMinutes = 0;
+        stopwatchHours++;
     }
+    displayTime('.js-timer', stopwatchHours, stopwatchMinutes, stopwatchSeconds);
+    updateProgressBar('.progress', getProgress(stopwatchSeconds));
 }
 
-function updateProgressBar(progress) {
-    const progressBar = document.querySelector('.progress');
-    progressBar.style.width = progress + '%';
-}
-
-function getProgress() {
-    return (seconds / 60) * 100; 
-}
-
-let timerBack;
-
-function startTimerApp() {
+function startCountdownTimer() {
     let durationInput = document.querySelector('.durationInput').value;
     let duration = parseInt(durationInput);
-    
     if (isNaN(duration) || duration <= 0) {
         alert('Please enter a valid duration in seconds.');
         return;
     }
-    
-    timerBack = setInterval(function() {
-        let hours = Math.floor(duration / 3600);
-        let minutes = Math.floor((duration % 3600) / 60);
-        let seconds = duration % 60;
-        document.querySelector('.timerDisplay').innerText = formatTime(hours) + ':' + formatTime(minutes) + ':' + formatTime(seconds);
-        
-        duration--;
-        
-        if (duration < 0) {
-            clearInterval(timerBack);
+    countdownHours = Math.floor(duration / 3600);
+    countdownMinutes = Math.floor((duration % 3600) / 60);
+    countdownSeconds = duration % 60;
+    countdownTimer = setInterval(updateCountdownTimer, 1000);
+}
+
+function pauseCountdownTimer() {
+    isCountdownPaused = true;
+}
+
+function resumeCountdownTimer() {
+    isCountdownPaused = false;
+}
+
+function updateCountdownTimer() {
+    if (!isCountdownPaused) {
+        if (countdownSeconds === 0 && countdownMinutes === 0 && countdownHours === 0) {
+            clearInterval(countdownTimer);
             alert('Timer expired!');
+        } else {
+            countdownSeconds--;
+            if (countdownSeconds < 0) {
+                countdownSeconds = 59;
+                countdownMinutes--;
+                if (countdownMinutes < 0) {
+                    countdownMinutes = 59;
+                    countdownHours--;
+                }
+            }
+            displayTime('.timerDisplay', countdownHours, countdownMinutes, countdownSeconds);
+            updateProgressBar('.progress', getProgress(countdownSeconds));
         }
-    }, 1000);
+    }
+}
+
+function displayTime(selector, hours, minutes, seconds) {
+    const display = document.querySelector(selector);
+    display.innerText = formatTime(hours) + ':' + formatTime(minutes) + ':' + formatTime(seconds);
+}
+
+function formatTime(time) {
+    return time < 10 ? '0' + time : time;
+}
+
+function updateProgressBar(selector, progress) {
+    const progressBar = document.querySelector(selector);
+    progressBar.style.width = progress + '%';
+}
+
+function getProgress(seconds) {
+    return ((60 - seconds) / 60) * 100;
 }
