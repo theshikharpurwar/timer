@@ -1,3 +1,19 @@
+const stopWatch = document.querySelector('.js-Stop-Watch');
+stopWatch.addEventListener('click', () => {
+    const container = document.querySelector('.container');
+    container.innerHTML = `<h1 class="header">Stop-Watch</h1>
+            <h2 class="js-timer displayed-time">00:00:00</h2>
+            <div class="controls">
+                <button class="control js-start-timer">Start</button>
+                <button class="control js-stop-timer">Stop</button>
+                <button class="control js-reset-timer">Reset</button>
+            </div>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            <div class="message"></div>`;
+});
+
 let hours = 0;
 let minutes = 0;
 let seconds = 0;
