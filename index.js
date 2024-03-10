@@ -12,6 +12,10 @@ stopWatch.addEventListener('click', () => {
                 <div class="progress"></div>
             </div>
             <div class="message"></div>`;
+
+    document.querySelector('.js-start-timer').addEventListener('click', startTimer);
+    document.querySelector('.js-stop-timer').addEventListener('click', stopTimer);
+    document.querySelector('.js-reset-timer').addEventListener('click', resetTimer);
 });
 
 let hours = 0;
@@ -74,7 +78,3 @@ function updateProgressBar(progress) {
 function getProgress() {
     return (seconds / 60) * 100; 
 }
-
-document.querySelector('.js-start-timer').addEventListener('click', startTimer);
-document.querySelector('.js-stop-timer').addEventListener('click', stopTimer);
-document.querySelector('.js-reset-timer').addEventListener('click', resetTimer);
