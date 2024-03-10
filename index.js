@@ -30,7 +30,7 @@ function initializeStopwatch() {
             <div class="progress"></div>
         </div>
         <div class="message"></div>`;
-
+    
     document.querySelector('.js-start-timer').addEventListener('click', startStopwatch);
     document.querySelector('.js-stop-timer').addEventListener('click', stopStopwatch);
     document.querySelector('.js-reset-timer').addEventListener('click', resetStopwatch);
@@ -45,50 +45,13 @@ function initializeCountdownTimer() {
         </div>
         <div class="item-center">
             <button class="js-start-timer-app control">Start</button>
-            <button class="js-pause-timer control">Pause</button>
-            <button class="js-resume-timer control">Resume</button>
         </div>
         <h2 class="timerDisplay displayed-time">00:00:00</h2>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
     `;
     document.querySelector('.js-start-timer-app').addEventListener('click', startCountdownTimer);
-    document.querySelector('.js-pause-timer').addEventListener('click', pauseCountdownTimer);
-    document.querySelector('.js-resume-timer').addEventListener('click', resumeCountdownTimer);
-}
-
-
-function startStopwatch() {
-    if (!isStopwatchRunning) {
-        isStopwatchRunning = true;
-        stopwatchTimer = setInterval(updateStopwatch, 1000);
-    }
-}
-
-function stopStopwatch() {
-    clearInterval(stopwatchTimer);
-    isStopwatchRunning = false;
-}
-
-function resetStopwatch() {
-    stopStopwatch();
-    stopwatchSeconds = 0;
-    stopwatchMinutes = 0;
-    stopwatchHours = 0;
-    displayTime('.js-timer', stopwatchHours, stopwatchMinutes, stopwatchSeconds);
-    updateProgressBar('.progress', 0);
-}
-
-function updateStopwatch() {
-    stopwatchSeconds++;
-    if (stopwatchSeconds === 60) {
-        stopwatchSeconds = 0;
-        stopwatchMinutes++;
-    }
-    if (stopwatchMinutes === 60) {
-        stopwatchMinutes = 0;
-        stopwatchHours++;
-    }
-    displayTime('.js-timer', stopwatchHours, stopwatchMinutes, stopwatchSeconds);
-    updateProgressBar('.progress', getProgress(stopwatchSeconds));
 }
 
 function startCountdownTimer() {
@@ -101,35 +64,54 @@ function startCountdownTimer() {
     countdownHours = Math.floor(duration / 3600);
     countdownMinutes = Math.floor((duration % 3600) / 60);
     countdownSeconds = duration % 60;
+    displayTime('.timerDisplay', countdownHours, countdownMinutes, countdownSeconds);
     countdownTimer = setInterval(updateCountdownTimer, 1000);
+    document.querySelector('.container').innerHTML += `
+        <div class="item-center">
+            <button class="js-pause-timer control">Pause</button>
+            <button class="js-reset-timer control">Reset</button>
+        </div>
+    `;
+    document.querySelector('.js-pause-timer').addEventListener('click', pauseCountdownTimer);
+    document.querySelector('.js-reset-timer').addEventListener('click', resetCountdownTimer);
 }
 
 function pauseCountdownTimer() {
-    isCountdownPaused = true;
+    clearInterval(countdownTimer);
+    document.querySelector('.container').innerHTML += `
+        <div class="item-center">
+            <button class="js-resume-timer control">Resume</button>
+        </div>
+    `;
+    document.querySelector('.js-resume-timer').addEventListener('click', resumeCountdownTimer);
 }
 
 function resumeCountdownTimer() {
-    isCountdownPaused = false;
+    countdownTimer = setInterval(updateCountdownTimer, 1000);
+    document.querySelector('.container').removeChild(document.querySelector('.item-center'));
+}
+
+function resetCountdownTimer() {
+    clearInterval(countdownTimer);
+    initializeCountdownTimer();
 }
 
 function updateCountdownTimer() {
-    if (!isCountdownPaused) {
-        if (countdownSeconds === 0 && countdownMinutes === 0 && countdownHours === 0) {
-            clearInterval(countdownTimer);
-            alert('Timer expired!');
-        } else {
-            countdownSeconds--;
-            if (countdownSeconds < 0) {
-                countdownSeconds = 59;
-                countdownMinutes--;
-                if (countdownMinutes < 0) {
-                    countdownMinutes = 59;
-                    countdownHours--;
-                }
+    if (countdownSeconds === 0 && countdownMinutes === 0 && countdownHours === 0) {
+        clearInterval(countdownTimer);
+        alert('Timer expired!');
+    } else {
+        countdownSeconds--;
+        if (countdownSeconds < 0) {
+            countdownSeconds = 59;
+            countdownMinutes--;
+            if (countdownMinutes < 0) {
+                countdownMinutes = 59;
+                countdownHours--;
             }
-            displayTime('.timerDisplay', countdownHours, countdownMinutes, countdownSeconds);
-            updateProgressBar('.progress', getProgress(countdownSeconds));
         }
+        displayTime('.timerDisplay', countdownHours, countdownMinutes, countdownSeconds);
+        updateProgressBar('.progress', getProgress(countdownSeconds));
     }
 }
 
