@@ -1,1 +1,1 @@
-https://theshikharpurwar.github.io/timer/
+https://theshikharpurwar.github.io/timer-stopWatch/
